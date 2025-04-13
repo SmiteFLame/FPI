@@ -1,4 +1,4 @@
-package com.mosinsa.fpi;
+package com.point.fpi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
