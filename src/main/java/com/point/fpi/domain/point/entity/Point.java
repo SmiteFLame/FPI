@@ -81,4 +81,9 @@ public class Point extends BaseEntity {
             pointState = PointState.USED;
         }
     }
+
+    public void restorePoint(Long point) {
+        remainPoint += point;
+        pointState = PointState.AVAILABLE;
+    }
 }

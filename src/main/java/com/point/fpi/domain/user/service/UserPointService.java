@@ -37,10 +37,10 @@ public class UserPointService {
         return userPointRepository.existsByUser(user);
     }
 
-    public void addUserPoint(
+    public UserPoint addUserPoint(
             UserPointAddParam param
     ) {
-        userPointRepository.save(param.to());
+        return userPointRepository.save(param.to());
     }
 
     public void modifyUserPoint(

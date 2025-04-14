@@ -2,15 +2,16 @@ package com.point.fpi.application.point;
 
 import com.point.fpi.application.point.request.PointAddRequest;
 import com.point.fpi.application.point.request.PointCancelRequest;
-import com.point.fpi.application.point.request.PointUserRequest;
+import com.point.fpi.application.point.request.PointUseCancelRequest;
+import com.point.fpi.application.point.request.PointUseRequest;
 import com.point.fpi.common.enums.PointEvent;
 import com.point.fpi.common.enums.PointState;
+import com.point.fpi.common.enums.PointType;
 import com.point.fpi.common.exception.BizException;
-import com.point.fpi.domain.configuration.entity.Configuration;
-import com.point.fpi.domain.configuration.service.ConfigurationService;
 import com.point.fpi.domain.point.entity.Point;
 import com.point.fpi.domain.point.entity.PointHistory;
 import com.point.fpi.domain.point.entity.PointRequest;
+import com.point.fpi.domain.point.param.PointAddParam;
 import com.point.fpi.domain.point.param.PointHistoryAddParam;
 import com.point.fpi.domain.point.param.PointModifyParam;
 import com.point.fpi.domain.point.service.PointHistoryService;
@@ -24,12 +25,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,7 +83,7 @@ public class PointApplication {
     ) {
         Point point = pointService.getPointByPointKey(request.getPointKey());
         if (!point.getPointState().equals(PointState.AVAILABLE)) {
-            throw new BizException(String.format("%s 상태의 포인트는 삭제할 수 없습니다.", point.getPointKey()));
+            throw new BizException(String.format("%s 상태의 포인트는 삭제할 수 없습니다.", point.getPointState().name()));
         }
         if (!point.getInitPoint().equals(point.getRemainPoint())) {
             throw new BizException("이미 적립된 금액중 일부가 사용되어 삭제할 수 없습니다.");
@@ -96,7 +93,7 @@ public class PointApplication {
 
     @Transactional
     public void usePoint(
-            PointUserRequest request
+            PointUseRequest request
     ) {
         LocalDateTime now = LocalDateTime.now();
         User user = userService.getUserByLoginId(request.getLoginId());
@@ -150,5 +147,79 @@ public class PointApplication {
 
         pointService.modifyPointList(usagePoints);
         pointHistoryService.addAllPointHistory(historyParams);
+    }
+
+    @Transactional
+    public void cancelUsePoint(
+            PointUseCancelRequest request
+    ) {
+        PointRequest pointRequest = pointRequestService.getPointRequestByOrderId(request.getOrderId());
+
+        if (pointRequest.getRequestAmount() - pointRequest.getCancelAmount() < request.getPoint()) {
+            throw new BizException("취소 가능한 포인트 이상의 금액이 입력 되었습니다.");
+        }
+
+        List<PointHistory> allHistories = pointHistoryService.getAllByPointRequest(pointRequest);
+
+        Map<Long, Long> cancelMap = allHistories.stream()
+                .filter(h -> h.getPointEvent() == PointEvent.CANCEL_POINT)
+                .collect(Collectors.groupingBy(
+                        h -> h.getPoint().getPointId(),
+                        Collectors.summingLong(PointHistory::getChangeAmount)
+                ));
+
+        List<PointHistory> usedHistories = allHistories.stream()
+                .filter(h -> h.getPointEvent() == PointEvent.USE_POINT)
+                .sorted(Comparator.comparing(point -> point.getPoint().getDueDate()))
+                .toList();
+
+        long remainToCancel = request.getPoint();
+        LocalDateTime now = LocalDateTime.now();
+
+        List<PointHistoryAddParam> cancelParams = new ArrayList<>();
+
+        for (PointHistory used : usedHistories) {
+            if (remainToCancel <= 0) break;
+
+            long alreadyCancelled = cancelMap.getOrDefault(used.getPoint().getPointId(), 0L);
+            long availableToCancel = used.getChangeAmount() - alreadyCancelled;
+
+            if (availableToCancel <= 0) continue;
+
+            long cancelNow = Math.min(availableToCancel, remainToCancel);
+            Point point = used.getPoint();
+
+            if (point.isExpired(now)) {
+                Point newPoint = pointService.addPoint(PointAddParam.builder()
+                        .user(point.getUser())
+                        .pointKey(String.format("%s%s", point.getPointKey(), PointType.RENEWAL.name()))
+                        .pointType(PointType.RENEWAL)
+                        .initPoint(cancelNow)
+                        .dueDate(point.getDueDate().plusDays(365L)) // FIXME 임의 설정
+                        .build());
+                cancelParams.add(PointHistoryAddParam.builder()
+                        .point(newPoint)
+                        .pointEvent(PointEvent.INIT_REQUEST)
+                        .changeAmount(cancelNow)
+                        .build());
+            } else {
+                point.restorePoint(cancelNow);
+                cancelParams.add(PointHistoryAddParam.builder()
+                        .point(point)
+                        .pointRequest(pointRequest)
+                        .pointEvent(PointEvent.CANCEL_POINT)
+                        .changeAmount(cancelNow)
+                        .build());
+            }
+
+            remainToCancel -= cancelNow;
+        }
+
+        if (cancelParams.isEmpty()) {
+            throw new BizException("사용 취소할 수 있는 포인트가 없습니다.");
+        }
+
+        pointRequest.modifyCancel(request.getPoint());
+        pointHistoryService.addAllPointHistory(cancelParams);
     }
 }

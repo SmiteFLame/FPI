@@ -3,11 +3,13 @@ package com.point.fpi.domain.point.entity;
 import com.point.fpi.common.entity.BaseEntity;
 import com.point.fpi.common.enums.PointEvent;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 @Table(name = "point_history")
 @NoArgsConstructor
 public class PointHistory extends BaseEntity {

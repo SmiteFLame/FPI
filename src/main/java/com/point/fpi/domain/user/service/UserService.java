@@ -27,9 +27,9 @@ public class UserService {
         return userRepository.existsByLoginId(loginId);
     }
 
-    public void addUser(
+    public User addUser(
             UserAddParam param
     ) {
-        userRepository.save(param.to());
+        return userRepository.save(param.to());
     }
 }

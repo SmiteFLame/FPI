@@ -4,11 +4,16 @@ import com.point.fpi.common.entity.BaseEntity;
 import com.point.fpi.common.enums.PointRequestState;
 import com.point.fpi.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
+@Getter
 @Table(name = "point_request")
+@NoArgsConstructor
 public class PointRequest extends BaseEntity {
 
     @Id
@@ -44,5 +49,16 @@ public class PointRequest extends BaseEntity {
         this.requestAmount = requestAmount;
         this.cancelAmount = 0L;
         this.pointRequestState = pointRequestState;
+    }
+
+    public void modifyCancel(
+            Long point
+    ) {
+        this.cancelAmount += point;
+        if (Objects.equals(requestAmount, cancelAmount)) {
+            pointRequestState = PointRequestState.CANCEL;
+        } else {
+            pointRequestState = PointRequestState.PART_CANCEL;
+        }
     }
 }

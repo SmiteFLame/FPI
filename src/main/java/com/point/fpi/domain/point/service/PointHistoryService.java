@@ -1,6 +1,7 @@
 package com.point.fpi.domain.point.service;
 
 import com.point.fpi.domain.point.entity.PointHistory;
+import com.point.fpi.domain.point.entity.PointRequest;
 import com.point.fpi.domain.point.param.PointHistoryAddParam;
 import com.point.fpi.domain.point.repository.PointHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PointHistoryService {
     private final PointHistoryRepository pointHistoryRepository;
+
+    public List<PointHistory> getAllByPointRequest(
+            PointRequest pointRequest
+    ) {
+        return pointHistoryRepository.findAllByPointRequest(pointRequest);
+    }
 
     public void addPointHistory(
             PointHistoryAddParam param
