@@ -72,6 +72,7 @@ public class Point extends BaseEntity {
     }
 
     public void cancelPoint() {
+        remainPoint = 0L;
         pointState = PointState.CANCELLED;
     }
 

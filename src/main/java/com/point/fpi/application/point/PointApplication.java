@@ -89,6 +89,11 @@ public class PointApplication {
             throw new BizException("이미 적립된 금액중 일부가 사용되어 삭제할 수 없습니다.");
         }
         pointService.cancelPoint(point);
+        pointHistoryService.addPointHistory(PointHistoryAddParam.builder()
+                .point(point)
+                .pointEvent(PointEvent.CANCEL_POINT_REQUEST)
+                .changeAmount(point.getInitPoint())
+                .build());
     }
 
     @Transactional
@@ -192,8 +197,9 @@ public class PointApplication {
             if (point.isExpired(now)) {
                 Point newPoint = pointService.addPoint(PointAddParam.builder()
                         .user(point.getUser())
-                        .pointKey(String.format("%s%s", point.getPointKey(), PointType.RENEWAL.name()))
+                        .pointKey(String.format("%s_%s", point.getPointKey(), PointType.RENEWAL.name()))
                         .pointType(PointType.RENEWAL)
+                        .pointState(PointState.AVAILABLE)
                         .initPoint(cancelNow)
                         .dueDate(point.getDueDate().plusDays(365L)) // FIXME 임의 설정
                         .build());
@@ -208,7 +214,7 @@ public class PointApplication {
                         .point(point)
                         .pointRequest(pointRequest)
                         .pointEvent(PointEvent.CANCEL_POINT)
-                        .changeAmount(cancelNow)
+                        .changeAmount(-cancelNow)
                         .build());
             }
 

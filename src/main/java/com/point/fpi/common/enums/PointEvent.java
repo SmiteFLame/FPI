@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum PointEvent {
     INIT_REQUEST("최초 생성"),
+    CANCEL_POINT_REQUEST("포인트 삭제"),
     USE_POINT("포인트 사용"),
     CANCEL_POINT("포인트 취소"),
     OVER_DUEDATE("만료");

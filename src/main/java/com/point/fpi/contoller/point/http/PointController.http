@@ -1,0 +1,42 @@
+### 포인트 적립
+POST http://localhost:8080/point
+Content-Type: application/json
+Accept: application/json
+
+{
+  "loginId": "loginIdA",
+  "pointKey":"A",
+  "point": 1000,
+  "pointType": "AUTO"
+}
+
+### 포인트 적립 취소
+DELETE http://localhost:8080/point
+Content-Type: application/json
+Accept: application/json
+
+{
+  "pointKey":"A"
+}
+
+### 포인트 사용
+POST http://localhost:8080/point/use
+Content-Type: application/json
+Accept: application/json
+
+{
+  "loginId": "loginIdA",
+  "orderId": "A",
+  "point": 500
+}
+
+### 포인트 사용 취소
+DELETE http://localhost:8080/point/use
+Content-Type: application/json
+Accept: application/json
+
+{
+  "loginId": "loginIdA",
+  "orderId": "A",
+  "point": 500
+}
