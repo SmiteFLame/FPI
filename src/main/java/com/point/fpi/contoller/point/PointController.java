@@ -3,13 +3,11 @@ package com.point.fpi.contoller.point;
 import com.point.fpi.application.point.PointApplication;
 import com.point.fpi.application.point.request.PointAddRequest;
 import com.point.fpi.application.point.request.PointCancelRequest;
+import com.point.fpi.application.point.request.PointUserRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -26,10 +24,17 @@ public class PointController {
         pointApplication.addPoint(request);
     }
 
-    @PostMapping
+    @DeleteMapping
     public void cancelPoint(
             @RequestBody @Valid PointCancelRequest request
     ) {
         pointApplication.cancelPoint(request);
+    }
+
+    @PostMapping("/use")
+    public void userPoint(
+            @RequestBody @Valid PointUserRequest request
+    ) {
+        pointApplication.usePoint(request);
     }
 }

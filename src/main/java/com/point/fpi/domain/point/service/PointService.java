@@ -5,6 +5,7 @@ import com.point.fpi.common.exception.BizException;
 import com.point.fpi.domain.point.entity.Point;
 import com.point.fpi.domain.point.entity.PointHistory;
 import com.point.fpi.domain.point.param.PointAddParam;
+import com.point.fpi.domain.point.param.PointModifyParam;
 import com.point.fpi.domain.point.repository.PointRepository;
 import com.point.fpi.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,17 @@ public class PointService {
     ) {
         point.cancelPoint();
         pointRepository.save(point);
+    }
+
+    public void modifyPointList(
+            List<PointModifyParam> params
+    ) {
+        List<Point> pointList = params.stream().map(param -> {
+                    Point point = param.getPoint();
+                    point.usePoint(param.getPointAmount());
+                    return point;
+                }
+        ).toList();
+        pointRepository.saveAll(pointList);
     }
 }

@@ -74,4 +74,11 @@ public class Point extends BaseEntity {
     public void cancelPoint() {
         pointState = PointState.CANCELLED;
     }
+
+    public void usePoint(Long point) {
+        remainPoint -= point;
+        if (remainPoint == 0L) {
+            pointState = PointState.USED;
+        }
+    }
 }
