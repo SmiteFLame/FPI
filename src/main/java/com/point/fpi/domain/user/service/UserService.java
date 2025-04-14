@@ -1,13 +1,12 @@
 package com.point.fpi.domain.user.service;
 
+import com.point.fpi.common.exception.BizException;
 import com.point.fpi.domain.user.entity.User;
 import com.point.fpi.domain.user.repository.UserRepository;
-import com.point.fpi.domain.user.service.param.UserAddParam;
+import com.point.fpi.domain.user.param.UserAddParam;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -15,10 +14,11 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public Optional<User> findUserByLoginId(
+    public User getUserByLoginId(
             String loginId
     ) {
-        return userRepository.findByLoginId(loginId);
+        return userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new BizException("존재하지 않는 아이디입니다."));
     }
 
     public boolean checkLoginId(

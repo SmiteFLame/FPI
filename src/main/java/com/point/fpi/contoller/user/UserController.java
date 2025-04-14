@@ -1,8 +1,8 @@
 package com.point.fpi.contoller.user;
 
-import com.point.fpi.application.UserApplication;
-import com.point.fpi.application.request.UserRequest;
-import com.point.fpi.application.request.UserPointRequest;
+import com.point.fpi.application.user.UserApplication;
+import com.point.fpi.application.user.request.UserRequest;
+import com.point.fpi.application.user.request.UserPointRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;

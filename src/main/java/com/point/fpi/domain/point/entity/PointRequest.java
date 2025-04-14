@@ -14,12 +14,12 @@ public class PointRequest extends BaseEntity {
     @Column(name = "point_request_id", nullable = false)
     private Long pointRequestId;
 
-    @Column(name = "order_id")
+    @Column(name = "order_id", nullable = false, unique = true)
     private String orderId;
 
-    @Column(name = "request_amount")
+    @Column(name = "request_amount", nullable = false)
     private Long requestAmount;
 
-    @Column(name = "point_request_state")
+    @Column(name = "point_request_state", nullable = false)
     private String pointRequestState;
 }

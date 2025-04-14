@@ -1,6 +1,6 @@
-package com.point.fpi.application.request;
+package com.point.fpi.application.user.request;
 
-import com.point.fpi.domain.user.service.param.UserAddParam;
+import com.point.fpi.domain.user.param.UserAddParam;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
@@ -11,7 +11,7 @@ public class UserRequest {
     @NotBlank
     private String userName;
 
-    public UserAddParam to() {
+    public UserAddParam toAddParam() {
         return UserAddParam.builder()
                 .loginId(this.loginId)
                 .userName(this.userName)

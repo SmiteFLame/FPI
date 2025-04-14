@@ -1,4 +1,4 @@
-package com.point.fpi.domain.user.service.param;
+package com.point.fpi.domain.user.param;
 
 import com.point.fpi.domain.user.entity.User;
 import com.point.fpi.domain.user.entity.UserPoint;

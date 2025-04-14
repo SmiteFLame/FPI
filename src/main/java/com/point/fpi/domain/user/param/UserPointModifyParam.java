@@ -1,4 +1,4 @@
-package com.point.fpi.domain.user.service.param;
+package com.point.fpi.domain.user.param;
 
 import lombok.Builder;
 import lombok.Getter;
